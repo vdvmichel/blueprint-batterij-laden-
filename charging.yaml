@@ -1,6 +1,6 @@
 blueprint:
   name: Optimale batterij lading voor zonsondergang
-  description: Stelt de maximale batterij laadsnelheid in op basis van de resterende zonneopbrengst om de batterij volledig op te laden 2 uur voor zonsondergang. Begrensd op maximaal 5000W.
+  description: Stelt de batterij laadsnelheid in op basis van de resterende zonneopbrengst om de batterij volledig op te laden 2 uur voor zonsondergang. Begrensd op maximaal 5000W.
   domain: automation
   input:
     battery_state_of_charge:
@@ -19,11 +19,18 @@ blueprint:
         number:
           min: 0
           mode: box
-    battery_charging_power:
-      name: Input number voor max laadsnelheid
+    battery_min_charging_power:
+      name: Minimale laadsnelheid (W)
       selector:
-        entity:
-          integration: input_number
+        number:
+          min: 0
+          mode: box
+    battery_max_charging_power:
+      name: Maximale laadsnelheid (W)
+      selector:
+        number:
+          min: 0
+          mode: box
 
 trigger:
   platform: state
@@ -35,11 +42,13 @@ variables:
   battery_capacity: !input battery_capacity
   doel_tijd: "{{ (as_timestamp(sun.next_setting('astronomical_twilight_end')) - 7200) }}"
   resterende_lading: "{{ battery_capacity - battery_state_of_charge }}"
-  vereiste_snelheid: "{{ min(resterende_lading / solcast_remaining_today, 5) }}"
+  vereiste_snelheid: "{{ min(resterende_lading / solcast_remaining_today, battery_max_charging_power | float) }}"
+  laadsnelheid: "{{ max(vereiste_snelheid, battery_min_charging_power | float) }}"
 
 action:
   - service: input_number.set_value
     target:
       entity_id: !input battery_charging_power
     data:
-      value: "{{ vereiste_snelheid }}"
+      value: "{{ laadsnelheid }}"
+

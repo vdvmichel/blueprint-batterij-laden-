@@ -25,26 +25,21 @@ blueprint:
         entity:
           integration: input_number
           
-  source:
-    entity:
-      domain: sensor 
-      integration: solcast
-    type: state
-  variables:
-    battery_state_of_charge: '{{ states(input.battery_state_of_charge) }}'
-    solcast_remaining_today: '{{ states(input.solcast_remaining_today) }}'
-    battery_capacity: '{{ input.battery_capacity }}'
-    zonsondergang: '{{ sun.sun.next_setting.astronomicalTwilightEnd.timestamp() }}'
-    doel_tijd: '{{ as_timestamp(sun.sun.next_setting.astronomicalTwilightEnd) - 7200 }}' 
-    resterende_lading: '{{ input.battery_capacity - input.battery_state_of_charge }}'
-    vereiste_snelheid: '{{ min(input.resterende_lading / input.solcast_remaining_today, 5) }}' # Begrensd op max 5kW
-    
-  mode: restart
-  max_exceeded: silent
-
-  sequence:
-    - service: input_number.set_value
-      target:
-        entity_id: '{{ input.battery_charging_power }}'
-      data:
-        value: '{{ vereiste_snelheid }}'
+trigger:
+  platform: state
+  entity_id: !input solcast_remaining_today
+          
+variables:
+  battery_state_of_charge: "{{ states(trigger.entity_id.split('.')[1]) }}"
+  solcast_remaining_today: "{{ trigger.to_state.state }}"
+  battery_capacity: !input battery_capacity
+  doel_tijd: "{{ (as_timestamp(sun.next_setting('astronomical_twilight_end')) - 7200) }}"
+  resterende_lading: "{{ battery_capacity - battery_state_of_charge }}"
+  vereiste_snelheid: "{{ min(resterende_lading / solcast_remaining_today, 5) }}"
+   
+action:
+  - service: input_number.set_value
+    target:
+      entity_id: !input battery_charging_power
+    data:
+      value: "{{ vereiste_snelheid }}"

@@ -3,11 +3,12 @@ blueprint:
   description: Stelt de batterij laadsnelheid in op basis van de resterende zonneopbrengst om de batterij volledig op te laden 2 uur voor zonsondergang. Begrensd op maximaal 5000W.
   domain: automation
   input:
-    battery_state_of_charge:
+    battery_state_of_capacity:
       name: Batterij laadniveau sensor
       selector:
         entity:
           integration: sensor
+          name: sensor.battery_state_of_capacity
     solcast_remaining_today:
       name: Solcast resterende opbrengst sensor
       selector:
@@ -43,7 +44,7 @@ trigger:
   entity_id: !input solcast_remaining_today
 
 variables:
-  battery_state_of_charge: "{{ states(trigger.entity_id.split('.')[1]) }}"
+  battery_state_of_charge: "{{ states(input.battery_state_of_capacity) }}"
   solcast_remaining_today: "{{ trigger.to_state.state }}"
   battery_capacity: !input battery_capacity
   doel_tijd: "{{ (as_timestamp(sun.next_setting('astronomical_twilight_end')) - 7200) }}"

@@ -8,8 +8,8 @@ blueprint:
       selector:
         entity:
           integration: sensor
-    solcast_remaining_today:  
-      name: Solcast resterende opbrengst sensor  
+    solcast_remaining_today:
+      name: Solcast resterende opbrengst sensor
       selector:
         entity:
           integration: sensor
@@ -24,11 +24,11 @@ blueprint:
       selector:
         entity:
           integration: input_number
-          
+
 trigger:
   platform: state
   entity_id: !input solcast_remaining_today
-          
+
 variables:
   battery_state_of_charge: "{{ states(trigger.entity_id.split('.')[1]) }}"
   solcast_remaining_today: "{{ trigger.to_state.state }}"
@@ -36,7 +36,7 @@ variables:
   doel_tijd: "{{ (as_timestamp(sun.next_setting('astronomical_twilight_end')) - 7200) }}"
   resterende_lading: "{{ battery_capacity - battery_state_of_charge }}"
   vereiste_snelheid: "{{ min(resterende_lading / solcast_remaining_today, 5) }}"
-   
+
 action:
   - service: input_number.set_value
     target:

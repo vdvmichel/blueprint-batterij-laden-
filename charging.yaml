@@ -51,4 +51,3 @@ action:
       entity_id: !input battery_charging_power
     data:
       value: "{{ laadsnelheid }}"
-

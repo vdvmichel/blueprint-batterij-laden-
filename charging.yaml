@@ -35,9 +35,8 @@ blueprint:
     battery_charging_power:
       name: Huidige laadsnelheid (W)
       selector:
-        number:
-          min: 0
-          mode: box
+        entity:
+          integration: input_number
 
 trigger:
   platform: state

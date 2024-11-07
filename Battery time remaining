@@ -28,33 +28,15 @@ blueprint:
     time_until_full:
       name: Tijd tot Vol
       description: Helper voor de berekende tijd tot de batterij vol is.
-      default: 
-        name: Time Until Full
-        min: 0
-        max: 24
-        step: 0.1
-        unit_of_measurement: uren
       selector:
-        number:
-          min: 0
-          max: 24
-          step: 0.1
-          unit_of_measurement: h
+        entity:
+          domain: input_number
     time_until_empty:
       name: Tijd tot Leeg
       description: Helper voor de berekende tijd tot de batterij leeg is.
-      default: 
-        name: Time Until Empty
-        min: 0
-        max: 24
-        step: 0.1
-        unit_of_measurement: uren
       selector:
-        number:
-          min: 0
-          max: 24
-          step: 0.1
-          unit_of_measurement: h
+        entity:
+          domain: input_number
 
 trigger:
   - platform: state

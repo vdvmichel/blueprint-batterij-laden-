@@ -44,7 +44,7 @@ trigger:
 
 action:
   - variables:
-      capacity_wh: "{{ (battery_capacity_kwh | float) * 1000 }}"  # Omrekenen van kWh naar Wh
+      capacity_wh: "{{ (input.battery_capacity_kwh | float) * 1000 }}"  # Omrekenen van kWh naar Wh
       soc_percentage: "{{ states(input.battery_soc) | float }}"
       power_w: "{{ states(input.battery_power) | float }}"
       current_energy: "{{ (capacity_wh * (soc_percentage / 100)) }}"  # Huidige energie in Wh

@@ -44,9 +44,9 @@ trigger:
 
 action:
   - variables:
-      capacity_wh: "{{ (input.battery_capacity_kwh | float) * 1000 }}"  # Omrekenen van kWh naar Wh
-      soc_percentage: "{{ states(input.battery_soc) | float }}"
-      power_w: "{{ states(input.battery_power) | float }}"
+      capacity_wh: "{{ (!input battery_capacity_kwh | float) * 1000 }}"  # Omrekenen van kWh naar Wh
+      soc_percentage: "{{ states('!input battery_soc') | float }}"
+      power_w: "{{ states('!input battery_power') | float }}"
       current_energy: "{{ (capacity_wh * (soc_percentage / 100)) }}"  # Huidige energie in Wh
 
   - choose:
@@ -56,7 +56,7 @@ action:
         sequence:
           - service: input_number.set_value
             target:
-              entity_id: "{{ input.time_until_full }}"
+              entity_id: !input time_until_full
             data:
               value: "{{ ((capacity_wh - current_energy) / power_w) | round(2) }}"  # Tijd tot vol in uren
 
@@ -66,6 +66,6 @@ action:
         sequence:
           - service: input_number.set_value
             target:
-              entity_id: "{{ input.time_until_empty }}"
+              entity_id: !input time_until_empty
             data:
               value: "{{ (current_energy / abs(power_w)) | round(2) }}"  # Tijd tot leeg in uren
